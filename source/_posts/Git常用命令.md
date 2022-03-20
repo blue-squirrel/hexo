@@ -14,9 +14,8 @@ git pull    拉取代码并合入 === git fetch && git merge
 git fetch   只拉取，不合入
 git checkout .  放弃所有没加入暂存区的代码
 
-git上创建仓库
+github上创建仓库
 git remote add origin https://github.com/blue-squirrel/仓库名.git   设置远程仓库
-git branch --set-upstream-to=origin/branch branch   设置远程分支
 git push -u origin master   推送到远程分支
 
 ## 分支
