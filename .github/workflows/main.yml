@@ -29,7 +29,7 @@ jobs:
       id: cache
       with:
        path: node_modules
-       key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}  # 这里根据用的包管理工具切换lock文件，hashFile会为匹配的文件计算SHA-256哈希值
+       key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }} # 这里根据用的包管理工具切换lock文件，hashFile会为匹配的文件计算SHA-256哈希值
        restore-keys: |
         ${{runner.os}}-node-
 
