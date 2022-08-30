@@ -49,7 +49,7 @@ http {
       root   /usr/share/nginx/html;
     }
 
-    
+
   }
 }
 ```
