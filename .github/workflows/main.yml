@@ -2,8 +2,7 @@ name: Deploy #随便取
 
 on:
   push:
-    branches:           # 当main或者master分支被push到远端仓库的时候，触发ci
-        - main          
+    branches:           # 当master分支被push到远端仓库的时候，触发ci         
         - master
  jobs:
   build:
