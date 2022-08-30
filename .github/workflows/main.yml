@@ -10,49 +10,50 @@ on:
       - '__test__/**'
       - 'src/**'
       - '**/**'
- jobs:
+
+jobs:
   build:
    runs-on: ubuntu-latest          # 在ubuntu下执行后续的操作
 
    steps:
     - name: Checkout Respository master branch        #actions/checkout checkout到$GITHUB_WORKSPACE下的repo  默认为当前repo
-     uses: actions/checkout@master
+      uses: actions/checkout@master
 
     - name: Setup Node.js 14.x    # 安装node14
-     uses: actions/setup-node@master
-     with:
-      node-version: '14.17.3'
+      uses: actions/setup-node@master
+      with:
+       node-version: '14.17.3'
 
     - name: Cache node modules # 缓存依赖增加工作流的执行速度
-     uses: actions/cache@v1
-     id: cache
-     with:
-      path: node_modules
-      key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}  # 这里根据用的包管理工具切换lock文件，hashFile会为匹配的文件计算SHA-256哈希值
-      restore-keys: |
-       ${{runner.os}}-node-
+      uses: actions/cache@v1
+      id: cache
+      with:
+       path: node_modules
+       key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}  # 这里根据用的包管理工具切换lock文件，hashFile会为匹配的文件计算SHA-256哈希值
+       restore-keys: |
+        ${{runner.os}}-node-
 
     - name: Setup Hexo Dependencies # 安装hexo-cli 并且安装依赖
-     run: |
-      npm install hexo-cli -g
-      npm install
+      run: |
+       npm install hexo-cli -g
+       npm install
 
     - name: Setup Deploy Private Key # 给ubuntu环境添加ssh的私钥,先按这里填，后边单独讲
-     env:
-      HEXO_DEPLOY_PRIVATE_KEY: ${{secrets.HEXO_DEPLOY_PRI}}
-     run: |
-      mkdir -p ~/.ssh/
-      echo "$HEXO_DEPLOY_PRIVATE_KEY" > ~/.ssh/id_rsa
-      chmod 600 ~/.ssh/id_rsa
-      ssh-keyscan github.com >> ~/.ssh/know_hosts
+      env:
+       HEXO_DEPLOY_PRIVATE_KEY: ${{secrets.HEXO_DEPLOY_PRI}}
+      run: |
+       mkdir -p ~/.ssh/
+       echo "$HEXO_DEPLOY_PRIVATE_KEY" > ~/.ssh/id_rsa
+       chmod 600 ~/.ssh/id_rsa
+       ssh-keyscan github.com >> ~/.ssh/know_hosts
 
     - name: Setup Git Infomation  # hexo deploy必须有git user.name和git user.email才能运行
-     run: |
-      git config --global user.name "blue-squirrel"
-      git config --global user.email "1440054388@gmail.com"
+      run: |
+       git config --global user.name "blue-squirrel"
+       git config --global user.email "1440054388@gmail.com"
 
     - name: Deploy Hexo
-    run: |
-      hexo clean
-      hexo generate
-      hexo deploy
+      run: |
+       hexo clean
+       hexo generate
+       hexo deploy
