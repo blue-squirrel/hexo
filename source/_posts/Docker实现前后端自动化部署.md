@@ -48,6 +48,7 @@ http {
     location = /50x.html {
       root   /usr/share/nginx/html;
     }
+    
   }
 }
 ```
