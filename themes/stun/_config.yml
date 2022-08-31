@@ -507,7 +507,7 @@ valine:
   # Your leancloud application appkey.
   appkey:
   # Mail notifier.
-  notify: true
+  notify: false
   # Verification code.
   verify: true
   # Comment box placeholder.
