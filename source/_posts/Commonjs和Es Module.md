@@ -1,5 +1,6 @@
 ---
 title: Commonjs和Es Module
+date: 2022-04-10
 ---
 
 总是对exports和module.exports的用法分不清？export和export default混用？快来看看他们的用法吧！

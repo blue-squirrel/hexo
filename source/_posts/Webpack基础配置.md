@@ -1,5 +1,6 @@
 ---
 title: Webpack基础配置
+date: 2022-06-12
 ---
 
 一些Webpack4的基础配置

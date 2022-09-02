@@ -1,5 +1,6 @@
 ---
 title: lerna实现Monorepo
+date: 2022-08-14
 ---
 
 lerna的方式实现Monorepo

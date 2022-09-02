@@ -1,5 +1,6 @@
 ---
 title: postman参数类型
+date: 2022-02-27
 ---
 
 postman软件中的四种请求类型

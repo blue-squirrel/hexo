@@ -1,5 +1,6 @@
 ---
 title: hexo使用帮助
+date: 2022-02-06
 ---
 
 ## Quick Start
