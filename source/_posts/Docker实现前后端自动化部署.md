@@ -96,6 +96,162 @@ docker image prune -f
 docker container prune -f
 ```
 
+## Docker部署后端服务
+
+### 安装Mysql
+
+仓库拉取mysql8.0
+
+```
+docker pull mysql:8.0
+```
+
+安装并运行mysql容器
+
+```
+docker run -p 3307:3306 --name mysql -e MYSQL_ROOT_PASSWORD=123456 -d mysql:8.0
+备注：
+-p 将本地主机的端口映射到docker容器端口（因为本机的3306端口已被其它版本占用，所以使用3307）
+--name 容器名称命名
+-e 配置信息，配置root密码
+-d 镜像名称
+```
+
+让mysql支持远程连接
+
+```
+// 进入mysql后
+ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY '123456';
+flush privileges; //刷新权限
+```
+
+若云服务器存在防火墙，需要将3306等端口开放才能连接
+
+![image-20220904164227943](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20220904164227943.png)
+
+之后需要被node服务连接数据库，可以先创建测试的数据库。
+
+### 启动后端服务
+
+后端服务和前端类似，Dockerfile有些改动
+
+测试使用的是midway框架，npm run build && npm start
+
+```
+FROM node
+WORKDIR /app
+COPY package*.json /app/
+RUN npm install
+COPY . .
+
+EXPOSE 7001
+CMD npm run build && npm start
+```
+
+用软链的方式，将node容器和mysql容器进行互联。
+
+连接的是mysql容器，将mysql配置修改
+
+此时已经互联，所以port为mysql内部端口3306，host为mysql容器
+
+```
+// 添加orm配置
+  orm: {
+    type: 'mysql',
+    host: 'mysql',
+    // host: '127.0.0.1', // 改成你的mysql数据库IP
+    port: 3306, // 改成你的mysql数据库端口
+    ...
+  },
+```
+
+启动node容器并将mysql容器软链
+
+```
+docker run -dti -p 7007:7001 --name node-container --link mysql:mysql 1440054388/midway-image
+// mysql:mysql 前端为容器名，后面为别名
+```
+
+**单独连接fe容器、node容器、mysql容器比较麻烦，不过docker已有相关的编排工具docker-compose**
+
+### docker-compose.yml配置
+
+以上，存在3个容器，他们的依赖关系是：前端容器=》后端容器=》数据库容器，需要按启动顺序启动。
+
+配置3项，用depends_on确定依赖关系，并且将它们都添加到同一个network中，才能互联
+
+```
+version: '3'
+
+networks:
+  app-web:
+   driver: bridge
+
+services:
+  mysql:
+    container_name: mysql
+    image: mysql:8.0
+    ports:
+     - 3306:3306
+    restart: always
+    networks:
+     - app-web
+    environment:
+     # 等同于 -e MYSQL_ROOT_PASSWORD指定root的登录密码
+     MYSQL_ROOT_PASSWORD: '123456'
+     MYSQL_ALLOW_EMPTY_PASSWORD: 'no'
+     # 这里这个指令compose启动成功后会自动创建名为node的数据库
+     MYSQL_DATABASE: 'node'
+     # 此处就是相当于 mysql create user，创建了数据库的登录用户。
+     # mysql8.0不用添加以下root，因为默认就已经添加了
+    #  MYSQL_USER: 'root'
+    #  MYSQL_PASSWORD: '123456' 
+    # volumes:
+      # - /root/docker/compose/mysql/data:/var/lib/mysql
+      # 这里的my.cnf可以从原来的安装的MySQL里面找，如果没有不配置也不影响，只是为了方便外部更改
+      # - /root/docker/compose/mysql/conf/my.cnf:/etc/my.cnf
+      # - /root/docker/compose/mysql/init:/docker-entrypoint-initdb.d
+    # 解决外部无法访问
+    command: --default-authentication-plugin=mysql_native_password
+  backend:
+    container_name: node-container
+    image: 1440054388/midway-image
+    ports:
+     - 7001:7001
+    depends_on:
+     - mysql
+    networks:
+     - app-web
+  frontend:
+    container_name: fe-container
+    image: 1440054388/fe-image
+    ports:
+     - 8081:80
+    depends_on:
+     - backend
+```
+
+并且互联后，可以把host改成127.0.0.1
+
+```
+ orm: {
+    type: 'mysql',
+    // host: 'mysql',
+    host: '127.0.0.1', // 改成你的mysql数据库IP
+```
+
+启动服务，-d表示以守护进程的方式运行
+
+```
+docker compose up -d
+```
+
+启动后有一些异常关闭的话，可以查看日志进行排查
+
+```
+docker logs 容器名
+```
+
 ## Github Action自动化部署
 
 **通过Github Action，监听分支代码变化，触发自定义的任务。**
