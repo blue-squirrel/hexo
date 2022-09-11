@@ -127,7 +127,7 @@ flush privileges; //刷新权限
 
 若云服务器存在防火墙，需要将3306等端口开放才能连接
 
-![image-20220904164227943](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20220904164227943.png)
+![QQ截图20220911140147](https://blue-squirrel-1257450790.cos.ap-beijing.myqcloud.com/blog/QQ%E6%88%AA%E5%9B%BE20220911140147.png)
 
 之后需要被node服务连接数据库，可以先创建测试的数据库。
 
